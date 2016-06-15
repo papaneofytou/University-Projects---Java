@@ -1,0 +1,377 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<style type="text/css">
+			html, body { height: 100%; margin: 0; padding: 0; }
+			
+			#what {	height: 5%;
+					text-align: center;
+					padding: 5px;}
+					
+			#map { height: 95%; }
+		</style>
+	</head>
+	<body>
+		<!-- xrisimopoioume to "what" gia na ektiponoume kapoia minimata (arithmos apotelesmaton)-->
+		<div id="what"></div>
+		<!-- sto "map" div exoume to xarti-->
+		<div id="map"></div>
+
+			<script>
+				/* o xartis */
+				var map;
+				/* pinakas me ola ta markers gia ta AP pou vriskontai tora sto xarti */
+				var markersAP = [];
+				/* pinakas me ola ta info windows gia ta antistoixa AP markers */
+				var infosAP = [];
+				/* pinakas me ola ta markers gia ta BS pou vriskontai tora sto xarti */
+				var markersBS = [];
+				/* pinakas me ola ta info windows gia ta antistoixa BS markers */
+				var infosBS = [];
+				/* to monopati tou xristi */
+				var userPath;
+				/* ta points of interest */
+				var allPOIs = [];
+				/* pinakas me ola ta markers gia ta SP pou vriskontai tora sto xarti */
+				var markersSP = [];
+				/* pinakas me ola ta info windows gia ta antistoixa SP markers */
+				var infosSP = [];
+				/* pinakas me ola ta markers gia ta POI pou vriskontai tora sto xarti */
+				var markersPOI = [];
+				/* pinakas me ola ta info windows gia ta antistoixa POI markers */
+				var infosPOI = [];
+				
+				/** Methodos gia na ginetai focus sto xarti me vasi ta markers
+				  * pou iparxoun ti dedomeni stigmi.
+				  */
+				function autofocus () {
+					var bounds = new google.maps.LatLngBounds();
+					for (var i = 0; i < markersAP.length; i++) {  
+						bounds.extend(markersAP[i].position);
+					}
+					for (var i = 0; i < markersBS.length; i++) {  
+						bounds.extend(markersBS[i].position);
+					}
+					for (var i = 0; i < markersSP.length; i++) {  
+						bounds.extend(markersSP[i].position);
+					}
+					for (var i = 0; i < markersPOI.length; i++) {  
+						bounds.extend(markersPOI[i].position);
+					}
+					map.fitBounds(bounds);
+				}
+				
+				/** Methodos pou diagrafei ola ta iparxonta markers. */
+				function deleteAllMarkers() {
+					for (var i=0; i<markersAP.length; i++) {
+						markersAP[i].setMap(null);
+					}
+					for (var i=0; i<markersBS.length; i++) {
+						markersBS[i].setMap(null);
+					}
+					for (var i=0; i<markersSP.length; i++) {
+						markersSP[i].setMap(null);
+					}
+					for (var i=0; i<markersPOI.length; i++) {
+						markersPOI[i].setMap(null);
+					}
+					markersAP = [];
+					infosAP = [];
+					markersBS = [];
+					infosBS = [];
+					markersSP = [];
+					infosSP = [];
+					markersPOI = [];
+					infosPOI = [];
+				}
+				
+				/** Methodos pou diagrafei to iparxon monopati apo to xarti. */
+				function removePath() {
+					if (userPath != null) {
+						userPath.setMap(null);
+					}
+				}
+				
+				/** Methodos pou diagrafei ola ta polygona (POIs). */
+				function deleteAllPolygons() {
+					for (var i=0; i<allPOIs.length; i++) {
+						allPOIs[i].setMap(null);
+					}
+					allPOIs = [];
+				}
+				
+				/** Arxikopoiisi tou xarti. */
+				function initMap() {
+					map = new google.maps.Map(document.getElementById('map'), {
+						center: {lat: 37.5, lng: 23.5},
+						zoom: 7
+					});
+				}
+				
+				/** Methodos gia tin prosthiki markers gia to erotima 2.1 */
+				function addAPMarkers(lat, lon, bssid, meanRSSI, freq) {
+					/* kaloume tin katallili methodo apo ti java kai diavazoume me json */
+					var userAPs = JSON.parse(app.getJsonUserAPs());
+					/* emfanizoume ton arithmo ton APs pou vrethikan */
+					document.getElementById('what').innerHTML = "APs: " + userAPs.length;
+					/* gia kathe access point: */
+					for (var i=0; i<userAPs.length; i++) {
+						/* pairnoume ta stoixeia tou */
+						lat = Number(userAPs[i][3]);
+						lon = Number(userAPs[i][4]);
+						bssid = userAPs[i][0];
+						meanRSSI = userAPs[i][1];
+						freq = userAPs[i][2];
+					
+						/* dimiourgoume to marker me tis sintetagmenes kai to vazoume sto xarti */
+						var latlon = new google.maps.LatLng(lat, lon);
+						var marker = new google.maps.Marker({
+							position: latlon,
+							map: map,
+						});
+					
+						/* ftiaxnoume to minima gia to info window */
+						var contentString = '<div id="content">'+
+						'<div id="siteNotice">'+
+						'</div>'+
+						'<h1 id="firstHeading" class="firstHeading">BSSID: ' + bssid + '</h1>'+
+						'<div id="bodyContent">'+
+						'<p>Lat: ' + lat + ', Lon: ' + lon + '</p>'+
+						'<p>mean RSSI: ' + meanRSSI + '</p>'+
+						'<p>frequency: ' + freq + '</p>'+
+						'</div>'+
+						'</div>';
+
+						/* ta prosthetoume stous pinakes mas */
+						markersAP.push(marker);
+						infosAP.push(contentString);
+					
+						/* ftiaxnoume to info window */
+						var infowindow = new google.maps.InfoWindow({
+							content: contentString
+						});
+  
+						/* ftiaxnoume to listener tou marker gia to click, pou tha emfanizei to info window */
+						marker.addListener('click', (function(marker, i) {
+							return function() {
+								infowindow.setContent(infosAP[i]);
+								infowindow.open(map, marker);
+							}
+						})(marker, i));				
+					}
+				}
+				
+				/** Methodos gia tin prosthiki markers gia to erotima 2.4 */
+				function addBSMarkers() {
+					var userCells = JSON.parse(app.getJsonUserCells());
+					document.getElementById('what').innerHTML += ",BSs: " + userCells.length;
+					for (var i=0; i<userCells.length; i++) {
+						lat = Number(userCells[i][7]);
+						lon = Number(userCells[i][8]);
+						cid = userCells[i][5];
+						lac = userCells[i][6];
+						operator = userCells[i][2];
+				
+						/* xrisimopoioume prasino marker */
+						var latlon = new google.maps.LatLng(lat, lon);
+						var marker = new google.maps.Marker({
+							icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
+							position: latlon,
+							map: map,
+						});
+					
+						var contentString = '<div id="content">'+
+						'<div id="siteNotice">'+
+						'</div>'+
+						'<h1 id="firstHeading" class="firstHeading">CID: ' + cid + '</h1>'+
+						'<div id="bodyContent">'+
+						'<p>operator: ' + operator + '</p>'+
+						'<p>Lat: ' + lat + ', Lon: ' + lon + '</p>'+
+						'<p>lac: ' + lac + '</p>'+
+						'</div>'+
+						'</div>';
+
+						markersBS.push(marker);
+						infosBS.push(contentString);
+					
+						var infowindow = new google.maps.InfoWindow({
+							content: contentString
+						});
+  
+						marker.addListener('click', (function(marker, i) {
+							return function() {
+								infowindow.setContent(infosBS[i]);
+								infowindow.open(map, marker);
+							}
+						})(marker, i));				
+					}
+				}
+				
+				/** Methodos gia tin emfanisi tou monopatiou tou xristi sto xarti. */
+				function addPath() {
+					/* kaloume tin katallili methodo apo ti java kai diavazoume me json */
+					var path = JSON.parse(app.getJsonUserPath());
+					/* emfanizoume ton arithmo ton komvon sto monopati */
+					document.getElementById('what').innerHTML += ",Path length: " + path.length;
+					/* pinakas me tis sintetagmenes olon ton komvon tou monopatiou */
+					var coords = [];
+					
+					/* prosthiki olon ton sintetagmenon ston pinaka */
+					for (var i=0; i<path.length; i++) {
+						coords.push(new google.maps.LatLng(Number(path[i][2]), Number(path[i][3])));
+					}
+					
+					/* dimiourgia tou monopatiou */
+					userPath = new google.maps.Polyline({
+						path: coords,
+						geodesic: true,
+						strokeColor: '#FF0000',
+						strokeOpacity: 1.0,
+						strokeWeight: 2
+					});
+                    
+					/* emfanisi tou monopatiou sto xarti. */					
+					userPath.setMap(map);
+				}
+				
+				/** Methodos pou ekteleitai otan o xristis epileksei "visualize".
+				  * Kalei ti methodo gia prosthiki ton APs, ti methodo gia prosthiki
+				  * ton cells kai ean iparxoun markers, ti methodo autofocus tou xarti.
+				  * Telos prostithetai to monopati tou xristi. 
+				  */
+				function getVisualizeData() {
+					addAPMarkers();
+					addBSMarkers();
+					if (markersAP.length > 0 || markersBS.length > 0) {
+						autofocus();
+					}
+					
+					addPath();
+				}
+				
+				/** Methodos pou ekteleitai otan o xristis epileksei "find SPs". */
+				function addSPs() {
+					var SPs = JSON.parse(app.getJsonSPs());
+					document.getElementById('what').innerHTML = "SPs: " + SPs.length;
+					for (var i=0; i<SPs.length; i++) {
+						lat = Number(SPs[i][0]);
+						lon = Number(SPs[i][1]);
+						tstart = SPs[i][2];
+						tend = SPs[i][3];
+				
+						/* xrisimopoioume mple marker */
+						var latlon = new google.maps.LatLng(lat, lon);
+						var marker = new google.maps.Marker({
+							icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+							position: latlon,
+							map: map,
+						});
+					
+						var contentString = '<div id="content">'+
+						'<div id="siteNotice">'+
+						'</div>'+
+						'<h1 id="firstHeading" class="firstHeading">Lat: ' + lat + ', Lon: ' + lon + '</h1>'+
+						'<div id="bodyContent">'+
+						'<p>Tstart: ' + tstart + '</p>'+
+						'<p>Tstart: ' + tend + '</p>'+
+						'</div>'+
+						'</div>';
+
+						markersSP.push(marker);
+						infosSP.push(contentString);
+					
+						var infowindow = new google.maps.InfoWindow({
+							content: contentString
+						});
+  
+						marker.addListener('click', (function(marker, i) {
+							return function() {
+								infowindow.setContent(infosSP[i]);
+								infowindow.open(map, marker);
+							}
+						})(marker, i));				
+					}
+					if (markersSP.length > 0) {
+						autofocus();
+					}
+				}
+				
+				/** Methodos pou ekteleitai otan o xristis epileksei "find POIs". */
+				function addPOIs() {
+					/* format tis grammis: meanLat, meanLon, minLat, maxLat, minLon, maxLon */
+					var POIs = JSON.parse(app.getJsonPOIs());
+					document.getElementById('what').innerHTML = "POIs: " + POIs.length;
+					/* pinakas me tis sintetagmenes tou polygonou */
+					var coords = [];
+					
+					for (var i=0; i<POIs.length; i++) {
+						/* prosthetoume tis sintetagmenes ston pinaka */
+						/* minX, minY
+						 * minX, maxY
+						 * maxX, maxY
+						 * maxX, minY
+						 */
+						coords.push(new google.maps.LatLng(Number(POIs[i][2]), Number(POIs[i][4])));
+						coords.push(new google.maps.LatLng(Number(POIs[i][2]), Number(POIs[i][5])));
+						coords.push(new google.maps.LatLng(Number(POIs[i][3]), Number(POIs[i][5])));
+						coords.push(new google.maps.LatLng(Number(POIs[i][3]), Number(POIs[i][4])));
+					
+						/* dimiourgoume to polygono. */
+						var polygon = new google.maps.Polygon({
+							paths: coords,
+							geodesic: true,
+							strokeColor: '#FF0000',
+							strokeOpacity: 1.0,
+							strokeWeight: 2,
+							fillColor: '#FF0000',
+							fillOpacity: 0.35
+						});
+						
+						/* prosthetoume to POI ston pinaka */
+						allPOIs.push(polygon);
+						/* emfanizoume to POI sto xarti */
+						polygon.setMap(map);
+						
+						/* prosthetoume marker sto geografiko kentro */
+						var latlon = new google.maps.LatLng(Number(POIs[i][0]), Number(POIs[i][1]));
+						var marker = new google.maps.Marker({
+							position: latlon,
+							map: map,
+						});
+					
+						var contentString = '<div id="content">'+
+						'<div id="siteNotice">'+
+						'</div>'+
+						'<h1 id="firstHeading" class="firstHeading">meanLat: ' + POIs[i][0] + ', meanLon: ' + POIs[i][1] + '</h1>'+
+						'<div id="bodyContent">'+
+						'</div>'+
+						'</div>';
+
+						markersPOI.push(marker);
+						infosPOI.push(contentString);
+					
+						var infowindow = new google.maps.InfoWindow({
+							content: contentString
+						});
+  
+						marker.addListener('click', (function(marker, i) {
+							return function() {
+								infowindow.setContent(infosPOI[i]);
+								infowindow.open(map, marker);
+							}
+						})(marker, i));
+						
+						coords = [];
+					}
+					if (markersPOI.length > 0) {
+						autofocus();
+					}
+				}		
+			</script>
+	
+			<script 
+				src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOFzBQ2sIYa3euMPnVGDcCQT2-UTAaXzM&callback=initMap">
+			</script>
+			
+	</body>
+</html>

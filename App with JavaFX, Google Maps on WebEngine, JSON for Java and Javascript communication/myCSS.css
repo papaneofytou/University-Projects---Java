@@ -1,0 +1,98 @@
+.myButton {
+	-fx-font-size: 14px;
+	-fx-text-align: center;
+	-fx-background-radius: 5px;
+	-fx-background-color: #16A085;
+	-fx-text-fill: #FFF;
+	-fx-padding: 2px;
+}
+
+.subButton {
+	-fx-font-size: 14px;
+	-fx-text-align: center;
+	-fx-background-radius: 5px;
+	-fx-background-color: #D17519;
+	-fx-text-fill: #FFF;
+	-fx-pref-width: 100px;
+	-fx-margin: 0px 0px 0px 4px;
+	-fx-padding: 2px;
+}
+
+.myMsg {
+	-fx-font-size: 12px;
+	-fx-font-weight: bold;
+	-fx-padding: 2px;
+	-fx-text-align: center;
+}
+
+#menutitle {
+	-fx-background-color: #CC6600;
+	-fx-text-fill: #FFF;
+	-fx-font-size: 16px;
+	-fx-font-weight: bold;
+	-fx-text-align: center;
+	-fx-background-radius: 5px;
+	-fx-padding: 5px 8px;
+}
+
+.myLabel {
+	-fx-font-size: 12px;
+	-fx-font-weight: bold;
+	-fx-padding: 0px 2px;
+}
+
+.myText {
+	-fx-font-size: 12px;
+	-fx-background-radius: 5px;
+}
+
+#submit {
+	-fx-font-size: 14px;
+	-fx-font-weight: bold;
+	-fx-padding: 5px;
+	-fx-text-fill: #16A085;
+	-fx-background-position: center;
+	-fx-background-insets: 0, 2;
+	-fx-opacity: 1.0;
+	-fx-outer-border: #16A085;
+	-fx-body-color: #B8D9D2;
+	-fx-background-color: 
+       -fx-outer-border,
+	   -fx-body-color;
+}
+
+.showButton {
+	-fx-font-size: 14px;
+	-fx-text-align: center;
+	-fx-background-radius: 5px;
+	-fx-background-color: #16A085;
+	-fx-text-fill: #FFF;
+	-fx-padding: 2px;
+}
+
+/* xromata gia to bar chart */
+.chart-bar.series0 { -fx-bar-fill:  #FF9933}
+.chart-bar.series1 { -fx-bar-fill:  #990000}
+.chart-bar.series2 { -fx-bar-fill:  #CC0066}
+.chart-bar.series3 { -fx-bar-fill:  #A352CC}
+.chart-bar.series4 { -fx-bar-fill:  #6666FF}
+.chart-bar.series5 { -fx-bar-fill:  #0033CC}
+.chart-bar.series6 { -fx-bar-fill:  #006600}
+.chart-bar.series7 { -fx-bar-fill:  #33CC33}
+.chart-bar.series8 { -fx-bar-fill:  #FFFF00}
+.chart-bar.series9 { -fx-bar-fill:  #FF9999}
+.chart-bar.series10 { -fx-bar-fill:  #996600}
+.chart-bar.series11 { -fx-bar-fill:  #3D2900}
+.chart-bar.series12 { -fx-bar-fill:  #999966}
+.chart-bar.series13 { -fx-bar-fill:  #E65C00}
+.chart-bar.series14 { -fx-bar-fill:  #CCFFCC}
+.chart-bar.series15 { -fx-bar-fill:  #003366}
+.chart-bar.series16 { -fx-bar-fill:  #FF0000}
+.chart-bar.series17 { -fx-bar-fill:  #666633}
+.chart-bar.series18 { -fx-bar-fill:  #660066}
+.chart-bar.series19 { -fx-bar-fill:  #990033}
+.chart-bar.series20 { -fx-bar-fill:  #66FF33}
+.chart-bar.series21 { -fx-bar-fill:  #00CCFF}
+.chart-bar.series22 { -fx-bar-fill:  #FFCC00}
+.chart-bar.series23 { -fx-bar-fill:  #996633}
+
